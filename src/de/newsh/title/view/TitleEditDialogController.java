@@ -5,11 +5,14 @@ import java.util.ArrayList;
 
 import de.newsh.title.model.Title;
 import de.newsh.util.URLFetcher;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -36,14 +39,17 @@ public class TitleEditDialogController {
 	private Title title;
 	private boolean okClicked = false;
 	
+	@FXML
+    private ProgressIndicator progressIndicator;
+	
 	/**
      * Initializes the controller class. This method is automatically called
      * after the fxml file has been loaded.
      */
 	
-	
 	@FXML
 	private void initialize() {
+		progressIndicator.setVisible(false);
 	}
 	/**
      * Sets the stage of this dialog.
@@ -96,27 +102,41 @@ public class TitleEditDialogController {
     }
     @FXML
     private void handleFetchDataButton() throws IOException {
-    	Title fetchedTitle = URLFetcher.fetchTitleByUrl(urlField.getText());
-    	if(fetchedTitle == null) {
-    		sendErrorMessage("Url not valid.");
-    		return;
-    	}
-    	//this.setTitle(fetchedTitle); doesn't work. why though?
-    	clearAllFields();
-    	nameField.setText(fetchedTitle.getName());
-    	if(fetchedTitle.getPlatform() != null) {
-			if(fetchedTitle.getPlatform().contains("PS4"))
-				ps4Checkbox.setSelected(true);
-			if(fetchedTitle.getPlatform().contains("PS3"))
-				ps3Checkbox.setSelected(true);
-			if(fetchedTitle.getPlatform().contains("PS Vita"))
-				psvitaCheckbox.setSelected(true);
-			if(fetchedTitle.getPlatform().contains("PSP"))
-				pspCheckbox.setSelected(true);
-		}
-		datePicker.setValue(fetchedTitle.getReleaseDate());
-		priceField.setText(String.valueOf(fetchedTitle.getPrice()));
     	
+    	final URLFetcher service = new URLFetcher();
+    	progressIndicator.visibleProperty().bind(service.runningProperty());
+    	service.url = urlField.getText();
+    	service.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+
+			@Override
+			public void handle(WorkerStateEvent workerStateEvent) {
+				Title fetchedTitle = service.getValue();
+				clearAllFields();
+		    	nameField.setText(fetchedTitle.getName());
+		    	if(fetchedTitle.getPlatform() != null) {
+					if(fetchedTitle.getPlatform().contains("PS4"))
+						ps4Checkbox.setSelected(true);
+					if(fetchedTitle.getPlatform().contains("PS3"))
+						ps3Checkbox.setSelected(true);
+					if(fetchedTitle.getPlatform().contains("PS Vita"))
+						psvitaCheckbox.setSelected(true);
+					if(fetchedTitle.getPlatform().contains("PSP"))
+						pspCheckbox.setSelected(true);
+				}
+				datePicker.setValue(fetchedTitle.getReleaseDate());
+				priceField.setText(String.valueOf(fetchedTitle.getPrice()));		
+			}
+    		
+    	});
+    	service.setOnFailed(new EventHandler<WorkerStateEvent>() {
+			@Override
+			public void handle(WorkerStateEvent event) {
+				sendErrorMessage("Url not valid.");
+			}
+    		
+    	});
+    	
+    	service.restart();
     }
     private void clearAllFields() {
     	
