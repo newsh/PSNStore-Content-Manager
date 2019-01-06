@@ -1,0 +1,30 @@
+
+
+.background {
+    -fx-background-color:  radial-gradient(focus-distance 59% , center 50% 50% , radius 55% , #002c74 , #001536);
+    
+}
+
+.label-onBackground {
+    -fx-font-size: 11pt;
+    -fx-font-family: "Open Sans",Helvetica,Roboto,Arial,sans-serif;
+    -fx-text-fill: white;
+    -fx-opacity: 1.0;
+    -fx-font-weight: 400;
+}
+
+.label-onBackgroundTitle {
+    -fx-font-size: 22pt;
+    -fx-font-family: "Open Sans",Helvetica,Roboto,Arial,sans-serif;
+    -fx-text-fill: white;
+    -fx-opacity: 1.0;
+    -fx-font-weight: 400;
+}
+
+.text-onBackground{
+    -fx-font-size: 11pt;
+    -fx-font-family: "Open Sans",Helvetica,Roboto,Arial,sans-serif;
+    -fx-fill: white;
+    -fx-opacity: 1.0;
+    -fx-font-weight: 400;
+}
