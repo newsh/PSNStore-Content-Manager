@@ -1,6 +1,8 @@
 package de.newsh.title.view;
 
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -8,6 +10,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -38,7 +41,7 @@ public class TitleOverviewController {
     private TableColumn<Title, String> priceColumn;
     
     @FXML
-    private Text nameText;
+    private Hyperlink nameHyperLink;
     @FXML
     private Label platformLabel;
     @FXML
@@ -114,14 +117,21 @@ public class TitleOverviewController {
      * @throws IOException 
      */
     private void showTitleDetails(Title title) throws IOException {
-    	nameText.setText("");
+    	nameHyperLink.setText("");
         platformLabel.setText("");
         releaseDateLabel.setText("");
     	priceLabel.setText("");
     	imageView.setImage(null);
     	if (title != null) {
             // Fill the labels with info from the title object.
-            nameText.setText(title.getName());
+    		nameHyperLink.setText(title.getName());
+    		nameHyperLink.setOnAction(new EventHandler<ActionEvent>() {
+    			 
+                @Override
+                public void handle(ActionEvent event) {
+                	mainApp.getHostServices().showDocument(title.getStoreUrl());
+                }
+            });
             platformLabel.setText(title.getPlatform());
             if(title.getReleaseDate() != null)
             	releaseDateLabel.setText(title.getReleaseDate().toString());
