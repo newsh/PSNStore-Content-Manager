@@ -1,34 +1,25 @@
 package de.newsh.title.view;
+import de.newsh.title.MainApp;
+import de.newsh.title.model.Title;
 
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.text.Text;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
-import java.util.Arrays;
-
-
-import de.newsh.title.MainApp;
-import de.newsh.title.model.Title;
 
 public class TitleOverviewController {
     @FXML
@@ -59,6 +50,10 @@ public class TitleOverviewController {
     private ImageView imageView;
     @FXML
     private AnchorPane titleDetailsAnchorPane;
+    private ContextMenu contextMenu = new ContextMenu();
+    private MenuItem menuItem1 = new MenuItem("New..."); 
+    private MenuItem menuItem2 = new MenuItem("Edit..."); 
+    private MenuItem menuItem3 = new MenuItem("Delete"); 
     // Reference to the main application.
     private MainApp mainApp;
 
@@ -85,10 +80,30 @@ public class TitleOverviewController {
         priceColumn.setCellValueFactory(cellData-> cellData.getValue().priceProperty());
         // Clear title details.
         showTitleDetails(null);
-     // Listen for selection changes and show the title details when changed.
+        contextMenu.getItems().addAll(menuItem1, menuItem2, menuItem3); 
+        titleTable.setContextMenu(contextMenu);     
+        menuItem1.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+            	handleNewTitle();
+            }
+        });
+        menuItem2.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                handleEditTitle();
+            }
+        });
+        menuItem3.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                handleDeleteTitle();
+            }
+        }); 
+        // Listen for selection changes and show the title details when changed.
         titleTable.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> { 
-                	try {
+        		(observable, oldValue, newValue) -> { 
+        			try {
 						showTitleDetails(newValue);
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -169,7 +184,7 @@ public class TitleOverviewController {
         }
     }
     @FXML
-    private void handleNewTitle() throws IOException {
+    private void handleNewTitle() {
         Title tempTitle = new Title();
         boolean okClicked = mainApp.showTitleEditDialog(tempTitle);
         if (okClicked) {
@@ -178,10 +193,8 @@ public class TitleOverviewController {
             
         }
     }
-	
-
 	@FXML
-	private void handleEditTitle() throws IOException {
+	private void handleEditTitle() {
 		Title selectedTitle = titleTable.getSelectionModel().getSelectedItem();
 		if (selectedTitle == null) {
 			Alert alert = new Alert(AlertType.INFORMATION);
