@@ -20,6 +20,9 @@ import javafx.scene.layout.AnchorPane;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class TitleOverviewController {
     @FXML
@@ -157,21 +160,27 @@ public class TitleOverviewController {
 	            FileInputStream input = new FileInputStream(pathToCover);
 	            Image image = new Image(input);
 	            imageView.setImage(image);
+	            input.close();
             }
+            
         }
     }
     @FXML
     private void handleDeleteTitle() {
     	int selectedIndex = titleTable.getSelectionModel().getSelectedIndex();
     	if (selectedIndex >= 0) {
-        	
+    		Path pathToCoverUrl = Paths.get("resources/titleCover/" + titleTable.getSelectionModel().getSelectedItem().getCID() + ".jpg");
+	        try {
+				Files.delete(pathToCoverUrl);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
         	titleTable.getItems().remove(selectedIndex);
             mainApp.saveTitleDataToCurrentFile();
             if(titleTable.getItems().isEmpty()) {
             	editButton.setDisable(true);
         		deleteButton.setDisable(true);
             }
-            
         } else {
             // Nothing selected. Should not ever happen because edit/delete are disabled
             Alert alert = new Alert(AlertType.WARNING);
