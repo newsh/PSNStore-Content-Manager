@@ -165,26 +165,33 @@ public class TitleOverviewController {
             
         }
     }
-    @FXML
-    private void handleDeleteTitle() {
-    	int selectedIndex = titleTable.getSelectionModel().getSelectedIndex();
-    	if(selectedIndex == -1)
-    		showNoTitleSelctedWarning();
-    	else {
-    		Path pathToCoverUrl = Paths.get("resources/titleCover/" + titleTable.getSelectionModel().getSelectedItem().getCID() + ".jpg");
-	        try {
-				Files.delete(pathToCoverUrl);
-			} catch (IOException e) {
-				e.printStackTrace();
+
+	@FXML
+	private void handleDeleteTitle() {
+		int selectedIndex = titleTable.getSelectionModel().getSelectedIndex();
+		if (selectedIndex == -1)
+			showNoTitleSelctedWarning();
+		else {
+			Path pathToCoverUrl = Paths
+					.get("resources/titleCover/" + titleTable.getSelectionModel().getSelectedItem().getCID() + ".jpg");
+			if (Files.exists(pathToCoverUrl)) {
+				{
+					try {
+						Files.delete(pathToCoverUrl);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
 			}
-        	titleTable.getItems().remove(selectedIndex);
-            mainApp.saveTitleDataToCurrentFile();
-            if(titleTable.getItems().isEmpty()) {
-            	editButton.setDisable(true);
-        		deleteButton.setDisable(true);
-            }
-        }
-    }
+			titleTable.getItems().remove(selectedIndex);
+			mainApp.saveTitleDataToCurrentFile();
+			if (titleTable.getItems().isEmpty()) {
+				editButton.setDisable(true);
+				deleteButton.setDisable(true);
+			}
+
+		}
+	}
     @FXML
     private void handleNewTitle() {
         Title tempTitle = new Title();
