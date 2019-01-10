@@ -168,7 +168,9 @@ public class TitleOverviewController {
     @FXML
     private void handleDeleteTitle() {
     	int selectedIndex = titleTable.getSelectionModel().getSelectedIndex();
-    	if (selectedIndex >= 0) {
+    	if(selectedIndex == -1)
+    		showNoTitleSelctedWarning();
+    	else {
     		Path pathToCoverUrl = Paths.get("resources/titleCover/" + titleTable.getSelectionModel().getSelectedItem().getCID() + ".jpg");
 	        try {
 				Files.delete(pathToCoverUrl);
@@ -181,15 +183,6 @@ public class TitleOverviewController {
             	editButton.setDisable(true);
         		deleteButton.setDisable(true);
             }
-        } else {
-            // Nothing selected. Should not ever happen because edit/delete are disabled
-            Alert alert = new Alert(AlertType.WARNING);
-            alert.initOwner(mainApp.getPrimaryStage());
-            alert.setTitle("No Selection");
-            alert.setHeaderText("No Title Selected");
-            alert.setContentText("Please select a title first.");
-
-            alert.showAndWait();
         }
     }
     @FXML
@@ -206,13 +199,16 @@ public class TitleOverviewController {
 	private void handleEditTitle() {
 		Title selectedTitle = titleTable.getSelectionModel().getSelectedItem();
 		if (selectedTitle == null) {
-			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.initOwner(mainApp.getPrimaryStage());
-			alert.setContentText("Please select a title first.");
-			alert.showAndWait();
+			showNoTitleSelctedWarning();
 		} else {
 			mainApp.showTitleEditDialog(selectedTitle);
 			mainApp.saveTitleDataToCurrentFile();
 		}
+	}
+	private void showNoTitleSelctedWarning() {
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.initOwner(mainApp.getPrimaryStage());
+		alert.setContentText("No title selected. Please select a title first.");
+		alert.showAndWait();
 	}
 }
