@@ -20,39 +20,38 @@ import javafx.concurrent.Task;
 public class URLFetcher extends Service<Title> {
 
 	public String url;
-	
+
 	@Override
 	protected Task<Title> createTask() {
 		return new Task<Title>() {
-            @Override
-            protected Title call() throws Exception {
-            	Title fetchedTitle = new Title();
-        		try {
-        		URL titleApiUrl = new URL(convertStoreUrl(url));
-        		BufferedReader jsonString = new BufferedReader(
-        		        new InputStreamReader(titleApiUrl.openStream()));
-        		
-        		JsonData jsonData = new Gson().fromJson(jsonString, JsonData.class);
-        		
-        		
-        		fetchedTitle.setName(jsonData.getName());
-        		fetchedTitle.setPlatform(jsonData.getPlayablePlatform().toString());
-        		fetchedTitle.setPrice(jsonData.getDefaultSku().getDisplayPrice());
-        		fetchedTitle.setReleaseDate(LocalDate.parse((jsonData.getReleaseDate().substring(0, 10))));
-        		
-        		for (Image image : jsonData.getImages()) {
-        			if(image.getType() == 10) { // type 10 is biggest resolution for title cover
-        				String fileName = jsonData.getId()  +  ".jpg";
-        				saveTitleCover(image.getUrl(), fileName);
-        			}
-        		}
-        			
-        		}catch (Exception e) {
-        			throw e;
-        		}
-        		return fetchedTitle;
-            }
-        };
+			@Override
+			protected Title call() throws Exception {
+				Title fetchedTitle = new Title();
+				try {
+					URL titleApiUrl = new URL(convertStoreUrl(url));
+					BufferedReader jsonString = new BufferedReader(new InputStreamReader(titleApiUrl.openStream()));
+
+					JsonData jsonData = new Gson().fromJson(jsonString, JsonData.class);
+
+					fetchedTitle.setName(jsonData.getName());
+					fetchedTitle.setPlatform(jsonData.getPlayablePlatform().toString());
+					fetchedTitle.setPrice(jsonData.getDefaultSku().getDisplayPrice());
+					fetchedTitle.setReleaseDate(LocalDate.parse((jsonData.getReleaseDate().substring(0, 10))));
+
+					String imageUrl = null;
+					String fileName = jsonData.getId() + ".jpg";
+					for (Image image : jsonData.getImages()) {
+						if (image.getType() == 10 || image.getType() == 9)// type 10 is biggest resolution for title
+																			// cover. 9 works too.
+							imageUrl = image.getUrl();
+					}
+					saveTitleCover(imageUrl, fileName);
+				} catch (Exception e) {
+					throw e;
+				}
+				return fetchedTitle;
+			}
+		};
 	}
 	static String convertStoreUrl(String titleStoreUrl) {
 		String languageCode = titleStoreUrl.substring(30,32); // de,en,fr,pt,...
@@ -61,7 +60,6 @@ public class URLFetcher extends Service<Title> {
 		return "https://store.playstation.com/store/api/chihiro/00_09_000/container/"+countryCode+"/"+languageCode+"/9000/"+cid;
 		
 	}
-	
 	private static void saveTitleCover(String imageUrl, String fileName) throws IOException {
 		URL url = new URL(imageUrl);
 		InputStream is = url.openStream();
