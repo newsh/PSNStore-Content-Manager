@@ -189,7 +189,6 @@ public class TitleOverviewController {
 				editButton.setDisable(true);
 				deleteButton.setDisable(true);
 			}
-
 		}
 	}
     @FXML
@@ -199,7 +198,7 @@ public class TitleOverviewController {
         if (okClicked) {
             mainApp.getTitleData().add(tempTitle);
             mainApp.saveTitleDataToCurrentFile();
-            
+            titleTable.getSelectionModel().selectLast();
         }
     }
 	@FXML
