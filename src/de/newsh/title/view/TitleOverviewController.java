@@ -1,4 +1,5 @@
 package de.newsh.title.view;
+
 import de.newsh.title.MainApp;
 import de.newsh.title.model.Title;
 
@@ -25,146 +26,146 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class TitleOverviewController {
-    @FXML
-    private TableView<Title> titleTable;
-    @FXML
-    private TableColumn<Title, String> nameColumn;
-    @FXML
-    private TableColumn<Title, String> platformColumn;
-    @FXML
-    private TableColumn<Title, String> priceColumn;
-    
-    @FXML
-    private Hyperlink nameHyperLink;
-    @FXML
-    private Label platformLabel;
-    @FXML
-    private Label releaseDateLabel;
-    @FXML 
-    private Label priceLabel;
+	@FXML
+	private TableView<Title> titleTable;
+	@FXML
+	private TableColumn<Title, String> nameColumn;
+	@FXML
+	private TableColumn<Title, String> platformColumn;
+	@FXML
+	private TableColumn<Title, String> priceColumn;
 
-    @FXML
-    private Button newButton;
-    @FXML
-    private Button editButton;
-    @FXML
-    private Button deleteButton;
-    @FXML
-    private ImageView imageView;
-    @FXML
-    private AnchorPane titleDetailsAnchorPane;
-    private ContextMenu contextMenu = new ContextMenu();
-    private MenuItem menuItem1 = new MenuItem("New..."); 
-    private MenuItem menuItem2 = new MenuItem("Edit..."); 
-    private MenuItem menuItem3 = new MenuItem("Delete"); 
-    // Reference to the main application.
-    private MainApp mainApp;
+	@FXML
+	private Hyperlink nameHyperLink;
+	@FXML
+	private Label platformLabel;
+	@FXML
+	private Label releaseDateLabel;
+	@FXML
+	private Label priceLabel;
 
-    /**
-     * The constructor.
-     * The constructor is called before the initialize() method.
-     */
-    public TitleOverviewController() {
-    }
+	@FXML
+	private Button newButton;
+	@FXML
+	private Button editButton;
+	@FXML
+	private Button deleteButton;
+	@FXML
+	private ImageView imageView;
+	@FXML
+	private AnchorPane titleDetailsAnchorPane;
+	private ContextMenu contextMenu = new ContextMenu();
+	private MenuItem menuItem1 = new MenuItem("New...");
+	private MenuItem menuItem2 = new MenuItem("Edit...");
+	private MenuItem menuItem3 = new MenuItem("Delete");
+	// Reference to the main application.
+	private MainApp mainApp;
 
-    /**
-     * Initializes the controller class. This method is automatically called
-     * after the fxml file has been loaded.
-     * @throws IOException 
-     */
-    @FXML
-    private void initialize() throws IOException {
-        
-    	editButton.setDisable(true);
-    	deleteButton.setDisable(true);
-    	
-        nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
-        platformColumn.setCellValueFactory(cellData -> cellData.getValue().platformProperty());
-        priceColumn.setCellValueFactory(cellData-> cellData.getValue().priceProperty());
-        // Clear title details.
-        showTitleDetails(null);
-        contextMenu.getItems().addAll(menuItem1, menuItem2, menuItem3); 
-        titleTable.setContextMenu(contextMenu);     
-        menuItem1.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-            	handleNewTitle();
-            }
-        });
-        menuItem2.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                handleEditTitle();
-            }
-        });
-        menuItem3.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                handleDeleteTitle();
-            }
-        }); 
-        // Listen for selection changes and show the title details when changed.
-        titleTable.getSelectionModel().selectedItemProperty().addListener(
-        		(observable, oldValue, newValue) -> { 
-        			try {
-						showTitleDetails(newValue);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-                	editButton.setDisable(false);
-                	deleteButton.setDisable(false);
-                	
-                });
-    }
+	/**
+	 * The constructor. The constructor is called before the initialize() method.
+	 */
+	public TitleOverviewController() {
+	}
 
-    /**
-     * Is called by the main application to give a reference back to itself.
-     * 
-     * @param mainApp
-     */
-    public void setMainApp(MainApp mainApp) {
-        this.mainApp = mainApp;
-        // Add observable list data to the table
-        titleTable.setItems(mainApp.getTitleData());
-    }
-    /**
-     * Fills all text fields to show details about the title.
-     * If the specified title is null, all text fields are cleared.
-     * 
-     * @param titl the title or null
-     * @throws IOException 
-     */
-    private void showTitleDetails(Title title) throws IOException {
-    	nameHyperLink.setText("");
-        platformLabel.setText("");
-        releaseDateLabel.setText("");
-    	priceLabel.setText("");
-    	imageView.setImage(null);
-    	if (title != null) {
-            // Fill the labels with info from the title object.
-    		nameHyperLink.setText(title.getName());
-    		nameHyperLink.setOnAction(new EventHandler<ActionEvent>() {
-    			 
-                @Override
-                public void handle(ActionEvent event) {
-                	mainApp.getHostServices().showDocument(title.getStoreUrl());
-                }
-            });
-            platformLabel.setText(title.getPlatform());
-            if(title.getReleaseDate() != null)
-            	releaseDateLabel.setText(title.getReleaseDate().toString());
-            priceLabel.setText(title.getPrice());
-            
-            String pathToCover = "resources/titleCover/" + title.getCID() + ".jpg";
-            if(new File(pathToCover).isFile()) {
-	            FileInputStream input = new FileInputStream(pathToCover);
-	            Image image = new Image(input);
-	            imageView.setImage(image);
-	            input.close();
-            }
-            
-        }
-    }
+	/**
+	 * Initializes the controller class. This method is automatically called after
+	 * the fxml file has been loaded.
+	 * 
+	 * @throws IOException
+	 */
+	@FXML
+	private void initialize() throws IOException {
+
+		editButton.setDisable(true);
+		deleteButton.setDisable(true);
+
+		nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+		platformColumn.setCellValueFactory(cellData -> cellData.getValue().platformProperty());
+		priceColumn.setCellValueFactory(cellData -> cellData.getValue().priceProperty());
+		// Clear title details.
+		showTitleDetails(null);
+		contextMenu.getItems().addAll(menuItem1, menuItem2, menuItem3);
+		titleTable.setContextMenu(contextMenu);
+		menuItem1.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				handleNewTitle();
+			}
+		});
+		menuItem2.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				handleEditTitle();
+			}
+		});
+		menuItem3.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				handleDeleteTitle();
+			}
+		});
+		// Listen for selection changes and show the title details when changed.
+		titleTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+			try {
+				showTitleDetails(newValue);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			editButton.setDisable(false);
+			deleteButton.setDisable(false);
+
+		});
+	}
+
+	/**
+	 * Is called by the main application to give a reference back to itself.
+	 * 
+	 * @param mainApp
+	 */
+	public void setMainApp(MainApp mainApp) {
+		this.mainApp = mainApp;
+		// Add observable list data to the table
+		titleTable.setItems(mainApp.getTitleData());
+	}
+
+	/**
+	 * Fills all text fields to show details about the title. If the specified title
+	 * is null, all text fields are cleared.
+	 * 
+	 * @param titl the title or null
+	 * @throws IOException
+	 */
+	private void showTitleDetails(Title title) throws IOException {
+		nameHyperLink.setText("");
+		platformLabel.setText("");
+		releaseDateLabel.setText("");
+		priceLabel.setText("");
+		imageView.setImage(null);
+		if (title != null) {
+			// Fill the labels with info from the title object.
+			nameHyperLink.setText(title.getName());
+			nameHyperLink.setOnAction(new EventHandler<ActionEvent>() {
+
+				@Override
+				public void handle(ActionEvent event) {
+					mainApp.getHostServices().showDocument(title.getStoreUrl());
+				}
+			});
+			platformLabel.setText(title.getPlatform());
+			if (title.getReleaseDate() != null)
+				releaseDateLabel.setText(title.getReleaseDate().toString());
+			priceLabel.setText(title.getPrice());
+
+			String pathToCover = "resources/titleCover/" + title.getCID() + ".jpg";
+			if (new File(pathToCover).isFile()) {
+				FileInputStream input = new FileInputStream(pathToCover);
+				Image image = new Image(input);
+				imageView.setImage(image);
+				input.close();
+			}
+
+		}
+	}
 
 	@FXML
 	private void handleDeleteTitle() {
@@ -191,16 +192,18 @@ public class TitleOverviewController {
 			}
 		}
 	}
-    @FXML
-    private void handleNewTitle() {
-        Title tempTitle = new Title();
-        boolean okClicked = mainApp.showTitleEditDialog(tempTitle);
-        if (okClicked) {
-            mainApp.getTitleData().add(tempTitle);
-            mainApp.saveTitleDataToCurrentFile();
-            titleTable.getSelectionModel().selectLast();
-        }
-    }
+
+	@FXML
+	private void handleNewTitle() {
+		Title tempTitle = new Title();
+		boolean okClicked = mainApp.showTitleEditDialog(tempTitle);
+		if (okClicked) {
+			mainApp.getTitleData().add(tempTitle);
+			mainApp.saveTitleDataToCurrentFile();
+			titleTable.getSelectionModel().selectLast();
+		}
+	}
+
 	@FXML
 	private void handleEditTitle() {
 		Title selectedTitle = titleTable.getSelectionModel().getSelectedItem();
@@ -211,6 +214,7 @@ public class TitleOverviewController {
 			mainApp.saveTitleDataToCurrentFile();
 		}
 	}
+
 	private void showNoTitleSelctedWarning() {
 		Alert alert = new Alert(AlertType.INFORMATION);
 		alert.initOwner(mainApp.getPrimaryStage());

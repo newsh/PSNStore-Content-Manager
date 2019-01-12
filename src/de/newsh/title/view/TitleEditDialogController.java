@@ -17,7 +17,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 public class TitleEditDialogController {
-	
+
 	@FXML
 	private TextField urlField;
 	@FXML
@@ -34,140 +34,150 @@ public class TitleEditDialogController {
 	private TextField priceField;
 	@FXML
 	private DatePicker datePicker;
-	
+
 	private Stage dialogStage;
 	private Title title;
 	private boolean okClicked = false;
-	
+
 	@FXML
-    private ProgressIndicator progressIndicator;
-	
+	private ProgressIndicator progressIndicator;
+
 	/**
-     * Initializes the controller class. This method is automatically called
-     * after the fxml file has been loaded.
-     */
-	
+	 * Initializes the controller class. This method is automatically called after
+	 * the fxml file has been loaded.
+	 */
+
 	@FXML
 	private void initialize() {
 		progressIndicator.setVisible(false);
 	}
+
 	/**
-     * Sets the stage of this dialog.
-     * 
-     * @param dialogStage
-     */
+	 * Sets the stage of this dialog.
+	 * 
+	 * @param dialogStage
+	 */
 	public void setDialogStage(Stage dialogStage) {
 		this.dialogStage = dialogStage;
 	}
+
 	public void setTitle(Title title) {
 		this.title = title;
-		
+
 		urlField.setText(title.getStoreUrl());
 		nameField.setText(title.getName());
-		if(title.getPlatform() != null) {
-			if(title.getPlatform().contains("PS4"))
+		if (title.getPlatform() != null) {
+			if (title.getPlatform().contains("PS4"))
 				ps4Checkbox.setSelected(true);
-			if(title.getPlatform().contains("PS3"))
+			if (title.getPlatform().contains("PS3"))
 				ps3Checkbox.setSelected(true);
-			if(title.getPlatform().contains("PS Vita"))
+			if (title.getPlatform().contains("PS Vita"))
 				psvitaCheckbox.setSelected(true);
-			if(title.getPlatform().contains("PSP"))
+			if (title.getPlatform().contains("PSP"))
 				pspCheckbox.setSelected(true);
 		}
 		datePicker.setValue(title.getReleaseDate());
 		priceField.setText(String.valueOf(title.getPrice()));
 	}
-    public boolean isOkClicked() {
-        return okClicked;
-    }
-    @FXML
-    private void handleOk() {
 
-        if (inputIsValid()) {
-	    	title.setStoreUrl(urlField.getText());
-        	title.setName(nameField.getText());
-	    	title.setPlatform(checkCheckBoxes());
-	    	title.setReleaseDate(datePicker.getValue());
-	    	title.setPrice(priceField.getText());
-	    	
-	    	okClicked = true;
-	    	dialogStage.close();
-        } else {
-        	sendErrorMessage("Please enter a name");
-        }
-    }
-    @FXML
-    private void handleCancel() {
-    	dialogStage.close();
-    }
-    @FXML
-    private void handleFetchDataButton() throws IOException {
-    	
-    	final URLFetcher service = new URLFetcher();
-    	progressIndicator.visibleProperty().bind(service.runningProperty());
-    	service.url = urlField.getText();
-    	service.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+	public boolean isOkClicked() {
+		return okClicked;
+	}
+
+	@FXML
+	private void handleOk() {
+
+		if (inputIsValid()) {
+			title.setStoreUrl(urlField.getText());
+			title.setName(nameField.getText());
+			title.setPlatform(checkCheckBoxes());
+			title.setReleaseDate(datePicker.getValue());
+			title.setPrice(priceField.getText());
+
+			okClicked = true;
+			dialogStage.close();
+		} else {
+			sendErrorMessage("Please enter a name");
+		}
+	}
+
+	@FXML
+	private void handleCancel() {
+		dialogStage.close();
+	}
+
+	@FXML
+	private void handleFetchDataButton() throws IOException {
+
+		final URLFetcher service = new URLFetcher();
+		progressIndicator.visibleProperty().bind(service.runningProperty());
+		service.url = urlField.getText();
+		service.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 
 			@Override
 			public void handle(WorkerStateEvent workerStateEvent) {
 				Title fetchedTitle = service.getValue();
 				clearAllFields();
-		    	nameField.setText(fetchedTitle.getName());
-		    	if(fetchedTitle.getPlatform() != null) {
-					if(fetchedTitle.getPlatform().contains("PS4"))
+				nameField.setText(fetchedTitle.getName());
+				if (fetchedTitle.getPlatform() != null) {
+					if (fetchedTitle.getPlatform().contains("PS4"))
 						ps4Checkbox.setSelected(true);
-					if(fetchedTitle.getPlatform().contains("PS3"))
+					if (fetchedTitle.getPlatform().contains("PS3"))
 						ps3Checkbox.setSelected(true);
-					if(fetchedTitle.getPlatform().contains("PS Vita"))
+					if (fetchedTitle.getPlatform().contains("PS Vita"))
 						psvitaCheckbox.setSelected(true);
-					if(fetchedTitle.getPlatform().contains("PSP"))
+					if (fetchedTitle.getPlatform().contains("PSP"))
 						pspCheckbox.setSelected(true);
 				}
 				datePicker.setValue(fetchedTitle.getReleaseDate());
-				priceField.setText(String.valueOf(fetchedTitle.getPrice()));		
+				priceField.setText(String.valueOf(fetchedTitle.getPrice()));
 			}
-    		
-    	});
-    	service.setOnFailed(new EventHandler<WorkerStateEvent>() {
+
+		});
+		service.setOnFailed(new EventHandler<WorkerStateEvent>() {
 			@Override
 			public void handle(WorkerStateEvent event) {
 				sendErrorMessage("Url not valid.");
 			}
-    		
-    	});
-    	
-    	service.restart();
-    }
-    private void clearAllFields() {
-    	
+
+		});
+
+		service.restart();
+	}
+
+	private void clearAllFields() {
+
 		nameField.clear();
 		ps4Checkbox.setSelected(false);
 		ps3Checkbox.setSelected(false);
 		psvitaCheckbox.setSelected(false);
 		pspCheckbox.setSelected(false);
-		datePicker.setValue(null);;
-		
+		datePicker.setValue(null);
+		;
+
 	}
+
 	private boolean inputIsValid() {
 		return !nameField.getText().isEmpty();
-    }
+	}
+
 	private void sendErrorMessage(String msg) {
 		Alert alert = new Alert(AlertType.ERROR);
-        alert.initOwner(dialogStage);
-        alert.setHeaderText(msg);
-        alert.showAndWait();
+		alert.initOwner(dialogStage);
+		alert.setHeaderText(msg);
+		alert.showAndWait();
 	}
-    private String checkCheckBoxes() {
+
+	private String checkCheckBoxes() {
 		ArrayList<String> platformList = new ArrayList<>();
-		if(ps4Checkbox.isSelected())
-    		platformList.add("PS4");
-		if(ps3Checkbox.isSelected())
-    		platformList.add("PS3");
-    	if(psvitaCheckbox.isSelected())
-    		platformList.add("PS Vita");
-    	if(pspCheckbox.isSelected())
-    		platformList.add("PSP");
+		if (ps4Checkbox.isSelected())
+			platformList.add("PS4");
+		if (ps3Checkbox.isSelected())
+			platformList.add("PS3");
+		if (psvitaCheckbox.isSelected())
+			platformList.add("PS Vita");
+		if (pspCheckbox.isSelected())
+			platformList.add("PSP");
 		return String.join(", ", platformList);
 	}
 }
-    
