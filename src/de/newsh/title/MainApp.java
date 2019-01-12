@@ -2,6 +2,7 @@ package de.newsh.title;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.prefs.Preferences;
 
 import javax.xml.bind.JAXBContext;
@@ -206,6 +207,7 @@ public class MainApp extends Application {
 		Preferences prefs = Preferences.userNodeForPackage(MainApp.class);
 		if (file != null) {
 			prefs.put("filePath", file.getPath());
+			setLastOpenedFiles(prefs, file);
 			// Update the stage title.
 			primaryStage.setTitle("PSN Content Manager - " + file.getName());
 		} else {
@@ -213,6 +215,20 @@ public class MainApp extends Application {
 			// Update the stage title.
 			primaryStage.setTitle("PSN Content Manager");
 		}
+	}
+
+	private void setLastOpenedFiles(Preferences prefs, File curFile) {
+		String lastOpendedFiles = prefs.get("lastOpenedFiles", null);
+		lastOpendedFiles = curFile + " " + lastOpendedFiles;
+		String result = "";
+		HashSet<String> hs = new HashSet<>();
+		for (String path : lastOpendedFiles.split(" ")) {
+			if (path != null && hs.add(path) == true) {
+				result += path + " ";
+			}
+		}
+		prefs.put("lastOpenedFiles", result);
+		// System.out.println(prefs.get("lastOpenedFiles", null));
 	}
 
 	/**
