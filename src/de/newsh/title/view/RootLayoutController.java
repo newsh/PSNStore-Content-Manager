@@ -1,9 +1,14 @@
 package de.newsh.title.view;
 
-import java.io.File;
-
 import de.newsh.title.MainApp;
+
+import java.io.File;
+import java.util.prefs.Preferences;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 
 /**
@@ -17,6 +22,30 @@ public class RootLayoutController {
 
 	// Reference to the main application
 	private MainApp mainApp;
+	@FXML
+	Menu recentlyUsedMenu;
+
+	@FXML
+	private void initialize() {
+		initRecentlyUsedMenu();
+	}
+
+	@FXML
+	private void initRecentlyUsedMenu() {
+		String lastOpendedFiles = Preferences.userNodeForPackage(MainApp.class).get("lastOpenedFiles", null);
+		recentlyUsedMenu.getItems().clear();
+		for (String path : lastOpendedFiles.split(" ")) {
+			MenuItem menuItem = new MenuItem(path);
+			menuItem.setOnAction(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent event) {
+					mainApp.loadTitleDataFromFile(new File(menuItem.getText()));
+				}
+			});
+			recentlyUsedMenu.getItems().add(menuItem);
+		}
+
+	}
 
 	/**
 	 * Is called by the main application to give a reference back to itself.
@@ -64,6 +93,7 @@ public class RootLayoutController {
 		File titleFile = mainApp.getTitleFilePath();
 		if (titleFile != null) {
 			mainApp.saveTitleDataToFile(titleFile);
+			initRecentlyUsedMenu();
 		} else {
 			handleSaveAs();
 		}
@@ -89,6 +119,7 @@ public class RootLayoutController {
 				file = new File(file.getPath() + ".json");
 			}
 			mainApp.saveTitleDataToFile(file);
+			initRecentlyUsedMenu();
 		}
 	}
 

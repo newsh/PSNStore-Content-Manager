@@ -1,10 +1,10 @@
 package de.newsh.title.view;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 import de.newsh.title.model.Title;
 import de.newsh.util.URLFetcher;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;

@@ -228,6 +228,7 @@ public class MainApp extends Application {
 			}
 		}
 		prefs.put("lastOpenedFiles", result);
+
 		// System.out.println(prefs.get("lastOpenedFiles", null));
 	}
 
