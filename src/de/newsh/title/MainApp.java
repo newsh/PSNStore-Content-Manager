@@ -45,7 +45,7 @@ public class MainApp extends Application {
 		this.primaryStage = primaryStage;
 		this.primaryStage.setTitle("PSN Content Manager");
 		this.primaryStage.getIcons().add(new Image("file:resources/images/iconfinder_playstation_287542.png"));
-
+		
 		initRootLayout();
 
 		showTitleOverview();
