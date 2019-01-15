@@ -3,6 +3,7 @@ package de.newsh.title;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.prefs.Preferences;
 
 import javax.xml.bind.JAXBContext;
@@ -25,6 +26,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -36,6 +40,7 @@ public class MainApp extends Application {
 	private Stage primaryStage;
 	private BorderPane rootLayout;
 	private ObservableList<Title> titleData = FXCollections.observableArrayList();
+	private int titleDataLastSaveStateHash;
 
 	public MainApp() {
 	}
@@ -45,7 +50,7 @@ public class MainApp extends Application {
 		this.primaryStage = primaryStage;
 		this.primaryStage.setTitle("PSN Content Manager");
 		this.primaryStage.getIcons().add(new Image("file:resources/images/iconfinder_playstation_287542.png"));
-		
+
 		initRootLayout();
 
 		showTitleOverview();
@@ -74,7 +79,7 @@ public class MainApp extends Application {
 			e.printStackTrace();
 		}
 
-		// Try to load last opened person file.
+		// Try to load last opened file.
 		File file = getTitleFilePath();
 		if (file != null) {
 			loadTitleDataFromFile(file);
@@ -109,10 +114,6 @@ public class MainApp extends Application {
 	 */
 	public boolean showTitleEditDialog(Title title) {
 		try {
-//        	datePicker.setOnAction(event -> {
-//        	    LocalDate date = datePicker.getValue();
-//        	    System.out.println("Selected date: " + date);
-//        	});
 			// Load the fxml file and create a new stage for the popup dialog.
 			FXMLLoader loader = new FXMLLoader();
 			loader.setLocation(MainApp.class.getResource("view/TitleEditDialog.fxml"));
@@ -123,7 +124,7 @@ public class MainApp extends Application {
 			dialogStage.initModality(Modality.WINDOW_MODAL);
 			dialogStage.initOwner(primaryStage);
 			dialogStage.setResizable(false);
-			Scene scene = new Scene(page); // dialogStage.setScene(new Scene(root,400,400));
+			Scene scene = new Scene(page);
 			dialogStage.setScene(scene);
 
 			// Set the title into the controller.
@@ -139,6 +140,21 @@ public class MainApp extends Application {
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	public ButtonData showUnsavedChangesDialog() {
+		Dialog<ButtonType> dialog = new Dialog<>();
+		dialog.setTitle("Save");
+		dialog.setHeaderText("Save file \"" + getTitleFilePath() + "\" ?");
+		ButtonType buttonTypeYes = new ButtonType("Yes", ButtonData.YES);
+		ButtonType buttonTypeNo = new ButtonType("No", ButtonData.NO);
+		ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+		dialog.getDialogPane().getButtonTypes().addAll(buttonTypeNo, buttonTypeYes, buttonTypeCancel);
+
+		Optional<ButtonType> btnPressed = dialog.showAndWait();
+		if (btnPressed.get().getButtonData() == ButtonData.YES)
+			saveTitleDataToCurrentFile();
+		return btnPressed.get().getButtonData();
 	}
 
 	public void showAbout() {
@@ -250,6 +266,8 @@ public class MainApp extends Application {
 			titleData.clear();
 			titleData.addAll(wrapper.getTitles());
 
+			titleDataLastSaveStateHash = titleData.hashCode();
+
 			// Save the file path to the registry.
 			setTitleFilePath(file);
 
@@ -262,6 +280,10 @@ public class MainApp extends Application {
 
 			alert.showAndWait();
 		}
+	}
+
+	public boolean unsavedChangesDetected() {
+		return titleDataLastSaveStateHash != 0 && titleDataLastSaveStateHash != titleData.hashCode();
 	}
 
 	/**
@@ -290,7 +312,8 @@ public class MainApp extends Application {
 
 			// Save the file path to the registry.
 			setTitleFilePath(file);
-		} catch (Exception e) { // catches ANY exception
+			titleDataLastSaveStateHash = titleData.hashCode();
+		} catch (Exception e) {
 			System.out.println(e);
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Error");

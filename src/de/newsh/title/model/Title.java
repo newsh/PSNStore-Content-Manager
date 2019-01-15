@@ -111,11 +111,11 @@ public class Title {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.get().hashCode());
-		result = prime * result + ((platform == null) ? 0 : platform.get().hashCode());
-		result = prime * result + ((price == null) ? 0 : price.get().hashCode());
-		result = prime * result + ((releaseDate == null) ? 0 : releaseDate.get().hashCode());
-		result = prime * result + ((storeUrl == null) ? 0 : storeUrl.get().hashCode());
+		result = prime * result + ((name.get() == null) ? 0 : name.get().hashCode());
+		result = prime * result + ((platform.get() == null) ? 0 : platform.get().hashCode());
+		result = prime * result + ((price.get() == null) ? 0 : price.get().hashCode());
+		result = prime * result + ((releaseDate.get() == null) ? 0 : releaseDate.get().hashCode());
+		result = prime * result + ((storeUrl.get() == null) ? 0 : storeUrl.get().hashCode());
 		return result;
 	}
 
@@ -128,28 +128,28 @@ public class Title {
 		if (getClass() != obj.getClass())
 			return false;
 		Title other = (Title) obj;
-		if (name == null) {
-			if (other.name != null)
+		if (name.get() == null) {
+			if (other.name.get() != null)
 				return false;
 		} else if (!name.get().equals(other.name.get()))
 			return false;
-		if (platform == null) {
-			if (other.platform != null)
+		if (platform.get() == null) {
+			if (other.platform.get() != null)
 				return false;
 		} else if (!platform.get().equals(other.platform.get()))
 			return false;
-		if (price == null) {
-			if (other.price != null)
+		if (price.get() == null) {
+			if (other.price.get() != null)
 				return false;
 		} else if (!price.get().equals(other.price.get()))
 			return false;
-		if (releaseDate == null) {
-			if (other.releaseDate != null)
+		if (releaseDate.get() == null) {
+			if (other.releaseDate.get() != null)
 				return false;
 		} else if (!releaseDate.get().equals(other.releaseDate.get()))
 			return false;
-		if (storeUrl == null) {
-			if (other.storeUrl != null)
+		if (storeUrl.get() == null) {
+			if (other.storeUrl.get() != null)
 				return false;
 		} else if (!storeUrl.get().equals(other.storeUrl.get()))
 			return false;

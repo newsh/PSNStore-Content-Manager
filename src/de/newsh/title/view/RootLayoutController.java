@@ -9,6 +9,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.stage.FileChooser;
 
 /**
@@ -16,7 +17,8 @@ import javafx.stage.FileChooser;
  * application layout containing a menu bar and space where other JavaFX
  * elements can be placed.
  * 
- * @author Marco Jakob
+ * @author Marco Jakob (edited)
+ *
  */
 public class RootLayoutController {
 
@@ -39,6 +41,10 @@ public class RootLayoutController {
 			menuItem.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent event) {
+					if (mainApp.unsavedChangesDetected()) {
+						if (mainApp.showUnsavedChangesDialog() == ButtonData.CANCEL_CLOSE)
+							return;
+					}			
 					mainApp.loadTitleDataFromFile(new File(menuItem.getText()));
 				}
 			});
@@ -57,10 +63,14 @@ public class RootLayoutController {
 	}
 
 	/**
-	 * Creates an empty address book.
+	 * Creates an empty title list.
 	 */
 	@FXML
 	private void handleNew() {
+		if (mainApp.unsavedChangesDetected()) {
+			if (mainApp.showUnsavedChangesDialog() == ButtonData.CANCEL_CLOSE)
+				return;
+		}
 		mainApp.getTitleData().clear();
 		mainApp.setTitleFilePath(null);
 	}
@@ -70,8 +80,11 @@ public class RootLayoutController {
 	 */
 	@FXML
 	private void handleOpen() {
+		if (mainApp.unsavedChangesDetected()) {
+			if (mainApp.showUnsavedChangesDialog() == ButtonData.CANCEL_CLOSE)
+				return;
+		}
 		FileChooser fileChooser = new FileChooser();
-
 		// Set extension filter
 		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json");
 		fileChooser.getExtensionFilters().add(extFilter);

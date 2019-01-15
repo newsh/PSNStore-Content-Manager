@@ -185,7 +185,6 @@ public class TitleOverviewController {
 				}
 			}
 			titleTable.getItems().remove(selectedIndex);
-			mainApp.saveTitleDataToCurrentFile();
 			if (titleTable.getItems().isEmpty()) {
 				editButton.setDisable(true);
 				deleteButton.setDisable(true);
@@ -199,7 +198,6 @@ public class TitleOverviewController {
 		boolean okClicked = mainApp.showTitleEditDialog(tempTitle);
 		if (okClicked) {
 			mainApp.getTitleData().add(tempTitle);
-			mainApp.saveTitleDataToCurrentFile();
 			titleTable.getSelectionModel().selectLast();
 		}
 	}
@@ -209,10 +207,8 @@ public class TitleOverviewController {
 		Title selectedTitle = titleTable.getSelectionModel().getSelectedItem();
 		if (selectedTitle == null) {
 			showNoTitleSelctedWarning();
-		} else {
+		} else
 			mainApp.showTitleEditDialog(selectedTitle);
-			mainApp.saveTitleDataToCurrentFile();
-		}
 	}
 
 	private void showNoTitleSelctedWarning() {
