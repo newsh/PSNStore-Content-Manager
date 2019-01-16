@@ -3,7 +3,6 @@ package de.newsh.title.view;
 import de.newsh.title.MainApp;
 
 import java.io.File;
-import java.util.prefs.Preferences;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -29,26 +28,27 @@ public class RootLayoutController {
 
 	@FXML
 	private void initialize() {
-		initRecentlyUsedMenu();
 	}
 
 	@FXML
 	private void initRecentlyUsedMenu() {
-		String lastOpendedFiles = Preferences.userNodeForPackage(MainApp.class).get("lastOpenedFiles", null);
 		recentlyUsedMenu.getItems().clear();
-		for (String path : lastOpendedFiles.split(" ")) {
+		for (String path : mainApp.getLastOpenedFiles()) {
 			MenuItem menuItem = new MenuItem(path);
+			recentlyUsedMenu.getItems().add(menuItem);
 			menuItem.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent event) {
 					if (mainApp.unsavedChangesDetected()) {
 						if (mainApp.showUnsavedChangesDialog() == ButtonData.CANCEL_CLOSE)
 							return;
-					}			
-					mainApp.loadTitleDataFromFile(new File(menuItem.getText()));
+					} else {
+						mainApp.loadTitleDataFromFile(new File(menuItem.getText()));
+						initRecentlyUsedMenu();
+					}
 				}
 			});
-			recentlyUsedMenu.getItems().add(menuItem);
+
 		}
 
 	}
@@ -60,6 +60,7 @@ public class RootLayoutController {
 	 */
 	public void setMainApp(MainApp mainApp) {
 		this.mainApp = mainApp;
+		initRecentlyUsedMenu();
 	}
 
 	/**
@@ -91,9 +92,9 @@ public class RootLayoutController {
 
 		// Show open file dialog
 		File file = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
-
 		if (file != null) {
 			mainApp.loadTitleDataFromFile(file);
+			initRecentlyUsedMenu();
 		}
 	}
 

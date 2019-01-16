@@ -51,9 +51,23 @@ public class MainApp extends Application {
 		this.primaryStage.setTitle("PSN Content Manager");
 		this.primaryStage.getIcons().add(new Image("file:resources/images/iconfinder_playstation_287542.png"));
 
+		cleanUpDeletedFiles();
 		initRootLayout();
-
 		showTitleOverview();
+	}
+
+	private void cleanUpDeletedFiles() {
+		Preferences prefs = Preferences.userNodeForPackage(MainApp.class);
+		String lastOpendedFiles = prefs.get("lastOpenedFiles", null);
+		prefs.put("lastOpenedFiles", "");
+		String result = "";
+
+		for (String path : lastOpendedFiles.split(" ")) {
+			if (path != null && new File(path).exists()) {
+				result += path + " ";
+			}
+		}
+		prefs.put("lastOpenedFiles", result);
 	}
 
 	/**
@@ -235,17 +249,23 @@ public class MainApp extends Application {
 
 	private void setLastOpenedFiles(Preferences prefs, File curFile) {
 		String lastOpendedFiles = prefs.get("lastOpenedFiles", null);
+		prefs.put("lastOpenedFiles", "");
 		lastOpendedFiles = curFile + " " + lastOpendedFiles;
 		String result = "";
 		HashSet<String> hs = new HashSet<>();
+		hs.add(getTitleFilePath().getName());
+
 		for (String path : lastOpendedFiles.split(" ")) {
-			if (path != null && hs.add(path) == true) {
+			if (path != null && new File(path).exists() && hs.add(path) == true) {
 				result += path + " ";
 			}
 		}
 		prefs.put("lastOpenedFiles", result);
+	}
 
-		// System.out.println(prefs.get("lastOpenedFiles", null));
+	public String[] getLastOpenedFiles() {
+		String lastOpendedFiles = Preferences.userNodeForPackage(MainApp.class).get("lastOpenedFiles", null);
+		return lastOpendedFiles.split(" ");
 	}
 
 	/**
