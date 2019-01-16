@@ -3,9 +3,13 @@ package de.newsh.title.view;
 import de.newsh.title.MainApp;
 
 import java.io.File;
+import java.util.Optional;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ButtonBar.ButtonData;
@@ -40,12 +44,11 @@ public class RootLayoutController {
 				@Override
 				public void handle(ActionEvent event) {
 					if (mainApp.unsavedChangesDetected()) {
-						if (mainApp.showUnsavedChangesDialog() == ButtonData.CANCEL_CLOSE)
+						if (showUnsavedChangesDialog() == ButtonData.CANCEL_CLOSE)
 							return;
-					} else {
-						mainApp.loadTitleDataFromFile(new File(menuItem.getText()));
-						initRecentlyUsedMenu();
 					}
+					mainApp.loadTitleDataFromFile(new File(menuItem.getText()));
+					initRecentlyUsedMenu();
 				}
 			});
 
@@ -69,7 +72,7 @@ public class RootLayoutController {
 	@FXML
 	private void handleNew() {
 		if (mainApp.unsavedChangesDetected()) {
-			if (mainApp.showUnsavedChangesDialog() == ButtonData.CANCEL_CLOSE)
+			if (showUnsavedChangesDialog() == ButtonData.CANCEL_CLOSE)
 				return;
 		}
 		mainApp.getTitleData().clear();
@@ -82,7 +85,7 @@ public class RootLayoutController {
 	@FXML
 	private void handleOpen() {
 		if (mainApp.unsavedChangesDetected()) {
-			if (mainApp.showUnsavedChangesDialog() == ButtonData.CANCEL_CLOSE)
+			if (showUnsavedChangesDialog() == ButtonData.CANCEL_CLOSE)
 				return;
 		}
 		FileChooser fileChooser = new FileChooser();
@@ -115,9 +118,10 @@ public class RootLayoutController {
 
 	/**
 	 * Opens a FileChooser to let the user select a file to save to.
+	 * @return 
 	 */
 	@FXML
-	private void handleSaveAs() {
+	private boolean handleSaveAs() {
 		FileChooser fileChooser = new FileChooser();
 
 		// Set extension filter
@@ -134,7 +138,9 @@ public class RootLayoutController {
 			}
 			mainApp.saveTitleDataToFile(file);
 			initRecentlyUsedMenu();
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -150,6 +156,34 @@ public class RootLayoutController {
 	 */
 	@FXML
 	private void handleExit() {
+		if(mainApp.unsavedChangesDetected()) {
+			ButtonData buttonPressed = showUnsavedChangesDialog();
+			if(buttonPressed == ButtonData.CANCEL_CLOSE)
+				return;
+		}
 		System.exit(0);
+	}
+	
+	public ButtonData showUnsavedChangesDialog() {
+		Dialog<ButtonType> dialog = new Dialog<>();
+		dialog.setTitle("Save");
+		String titleFilePath = mainApp.getTitleFilePath() != null ? mainApp.getTitleFilePath().getAbsolutePath() : "untitled"; 
+		dialog.setHeaderText("Save file \"" + titleFilePath + "\" ?");
+		ButtonType buttonTypeYes = new ButtonType("Yes", ButtonData.YES);
+		ButtonType buttonTypeNo = new ButtonType("No", ButtonData.NO);
+		ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+		dialog.getDialogPane().getButtonTypes().addAll(buttonTypeNo, buttonTypeYes, buttonTypeCancel);
+
+		Optional<ButtonType> btnPressed = dialog.showAndWait();
+		if (btnPressed.get().getButtonData() == ButtonData.YES) {
+			if(mainApp.getTitleFilePath() != null)
+				mainApp.saveTitleDataToCurrentFile();
+			else {
+				boolean fileSuccesfullySaved = handleSaveAs() ;
+				if(!fileSuccesfullySaved)
+					return ButtonData.CANCEL_CLOSE;
+			}
+		}
+		return btnPressed.get().getButtonData();
 	}
 }

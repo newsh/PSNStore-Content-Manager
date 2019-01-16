@@ -3,7 +3,6 @@ package de.newsh.title;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.prefs.Preferences;
 
 import javax.xml.bind.JAXBContext;
@@ -26,9 +25,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -156,21 +152,6 @@ public class MainApp extends Application {
 		}
 	}
 
-	public ButtonData showUnsavedChangesDialog() {
-		Dialog<ButtonType> dialog = new Dialog<>();
-		dialog.setTitle("Save");
-		dialog.setHeaderText("Save file \"" + getTitleFilePath() + "\" ?");
-		ButtonType buttonTypeYes = new ButtonType("Yes", ButtonData.YES);
-		ButtonType buttonTypeNo = new ButtonType("No", ButtonData.NO);
-		ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
-		dialog.getDialogPane().getButtonTypes().addAll(buttonTypeNo, buttonTypeYes, buttonTypeCancel);
-
-		Optional<ButtonType> btnPressed = dialog.showAndWait();
-		if (btnPressed.get().getButtonData() == ButtonData.YES)
-			saveTitleDataToCurrentFile();
-		return btnPressed.get().getButtonData();
-	}
-
 	public void showAbout() {
 		FXMLLoader loader = new FXMLLoader();
 		loader.setLocation(MainApp.class.getResource("view/About.fxml"));
@@ -269,7 +250,7 @@ public class MainApp extends Application {
 	}
 
 	/**
-	 * Loads person data from the specified file. The current person data will be
+	 * Loads title data from the specified file. The current title data will be
 	 * replaced.
 	 * 
 	 * @param file
@@ -282,27 +263,26 @@ public class MainApp extends Application {
 			// unmarshaller.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);
 			// Reading XML from the file and unmarshalling.
 			TitleListWrapper wrapper = (TitleListWrapper) unmarshaller.unmarshal(file);
-
 			titleData.clear();
 			titleData.addAll(wrapper.getTitles());
-
 			titleDataLastSaveStateHash = titleData.hashCode();
-
 			// Save the file path to the registry.
 			setTitleFilePath(file);
 
 		} catch (Exception e) { // catches ANY exception
 			System.out.println(e);
+			setTitleFilePath(null);
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Error");
 			alert.setHeaderText("Could not load data");
 			alert.setContentText("Could not load data from file:\n" + file.getPath());
-
 			alert.showAndWait();
 		}
 	}
 
 	public boolean unsavedChangesDetected() {
+		if (titleDataLastSaveStateHash == 0)
+			return true;
 		return titleDataLastSaveStateHash != 0 && titleDataLastSaveStateHash != titleData.hashCode();
 	}
 
